@@ -3,8 +3,13 @@ package main
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 )
+
+type shoppingCart struct {
+	Items []string
+}
 
 type Person struct {
 	Name     string
@@ -50,24 +55,24 @@ func main() {
 	mapData["Option 3"] = 3
 
 	for key, value := range mapData {
-		fmt.Printf("\n%s: %d", key, value)
+		fmt.Printf("%s: %d\n", key, value)
 	}
 
 	switchValue := "Option 2"
 	switch switchValue {
 	case "Option 1":
-		fmt.Println("You selected value: " + fmt.Sprint(mapData["Option 1"]))
+		fmt.Println("You selected value: " + strconv.Itoa(mapData["Option 1"]))
 	case "Option 2":
-		fmt.Println("You selected value: " + fmt.Sprint(mapData["Option 2"]))
+		fmt.Println("You selected value: " + strconv.Itoa(mapData["Option 2"]))
 	default:
 		fmt.Println("You selected an unknown option")
 	}
 
 	_, exists := mapData["Option 3"]
-	fmt.Println("\nOption 3 exists:", exists)
+	fmt.Println("Option 3 exists:", exists)
 
 	str, num := getTupla()
-	fmt.Printf("\nTuple: %s, %d\n", str, num)
+	fmt.Printf("Tuple: %s, %d\n", str, num)
 
 	result, err := isGreaterThanTen(-15)
 	if err != nil {
@@ -75,6 +80,21 @@ func main() {
 	} else {
 		fmt.Println("Is greater than ten:", result)
 	}
+
+	printPersonInfo(person, person2)
+
+	shoppingCart := &shoppingCart{}
+	addItem := AddItem(shoppingCart)
+	fmt.Println("Items in cart:", addItem("Apple"))
+	fmt.Println("Items in cart:", addItem("Banana"))
+	fmt.Println("Items in cart:", addItem("Orange"))
+	fmt.Println("Total: ", len(shoppingCart.Items))
+
+	addAddress := addAdress()
+	addAddress(&Address{Street: "456 Elm St", City: "Sometown", State: "TX", Zip: "67890"})
+	addAddress(&Address{Street: "789 Oak St", City: "Newtown", State: "FL", Zip: "54321"})
+	addressSoFar := addAddress(&Address{Street: "101 Pine St", City: "Oldtown", State: "WA", Zip: "98765"})
+	fmt.Println("Addresses so far:", addressSoFar)
 }
 
 func getTupla() (string, int) {
@@ -91,4 +111,25 @@ func isGreaterThanTen(num int) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func printPersonInfo(p ...Person) {
+	for _, person := range p {
+		fmt.Println(person.ToString())
+	}
+}
+
+func AddItem(cart *shoppingCart) func(item string) int {
+	return func(item string) int {
+		cart.Items = append(cart.Items, item)
+		return len(cart.Items)
+	}
+}
+
+func addAdress() func(address *Address) *[]Address {
+	AllAddresses := []Address{}
+	return func(address *Address) *[]Address {
+		AllAddresses = append(AllAddresses, *address)
+		return &AllAddresses
+	}
 }
