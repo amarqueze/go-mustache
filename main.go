@@ -30,6 +30,8 @@ func (p Person) ToString() string {
 }
 
 func main() {
+	defer finally()
+
 	person := Person{Name: "John", LastName: "Doe", Home: Address{Street: "123 Main St", City: "Anytown", State: "CA", Zip: "12345"}}
 	person2 := person
 	person2.Name = "Jane"
@@ -157,4 +159,8 @@ func processMessages(canal <-chan string) {
 	for msg := range canal {
 		fmt.Println("Received:", msg)
 	}
+}
+
+func finally() {
+	fmt.Println("Finally block executed.")
 }
