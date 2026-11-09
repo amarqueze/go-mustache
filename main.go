@@ -37,6 +37,11 @@ func main() {
 
 	fmt.Println("Hello, " + strings.ToUpper(person2.ToString()) + "!")
 
+	multiplicar := func(a int, b int) int {
+		return a * b
+	}
+	fmt.Println(multiplicar(3, 4))
+
 	if person.Name == person2.Name {
 		fmt.Println("Both persons have the same name.")
 	} else {
