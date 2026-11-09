@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type shoppingCart struct {
@@ -95,6 +96,10 @@ func main() {
 	addAddress(&Address{Street: "789 Oak St", City: "Newtown", State: "FL", Zip: "54321"})
 	addressSoFar := addAddress(&Address{Street: "101 Pine St", City: "Oldtown", State: "WA", Zip: "98765"})
 	fmt.Println("Addresses so far:", addressSoFar)
+
+	canal := make(chan string)
+	go backgroundTask(canal)
+	processMessages(canal)
 }
 
 func getTupla() (string, int) {
@@ -131,5 +136,20 @@ func addAdress() func(address *Address) *[]Address {
 	return func(address *Address) *[]Address {
 		AllAddresses = append(AllAddresses, *address)
 		return &AllAddresses
+	}
+}
+
+func backgroundTask(canal chan<- string) {
+	fmt.Println("Background task is running...")
+	for i := 0; i < 5; i++ {
+		time.Sleep(time.Duration(i) * time.Second)
+		canal <- fmt.Sprintf("Message %d from background task", i)
+	}
+	close(canal)
+}
+
+func processMessages(canal <-chan string) {
+	for msg := range canal {
+		fmt.Println("Received:", msg)
 	}
 }
