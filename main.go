@@ -3,6 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
+	"gomustache/internal/client"
+	"gomustache/internal/handler"
+	"gomustache/internal/router"
+	"gomustache/internal/service"
+	"log"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -104,9 +110,11 @@ func main() {
 	addressSoFar := addAddress(&Address{Street: "101 Pine St", City: "Oldtown", State: "WA", Zip: "98765"})
 	fmt.Println("Addresses so far:", addressSoFar)
 
-	canal := make(chan string)
-	go backgroundTask(canal)
-	processMessages(canal)
+	//canal := make(chan string)
+	//go backgroundTask(canal)
+	//processMessages(canal)
+
+	runServer()
 }
 
 func getTupla() (string, int) {
@@ -163,4 +171,19 @@ func processMessages(canal <-chan string) {
 
 func finally() {
 	fmt.Println("Finally block executed.")
+}
+
+func runServer() {
+	httpClient := &http.Client{Timeout: 5 * time.Second}
+	jpClient := client.NewJSONPlaceholderClient("https://jsonplaceholder.typicode.com", httpClient)
+
+	userService := service.NewUserService(jpClient, 2*time.Second)
+
+	r := router.New(router.Handlers{
+		User: handler.NewUserHandler(userService),
+	})
+
+	if err := r.Run(":8080"); err != nil {
+		log.Fatalf("server failed: %v", err)
+	}
 }
